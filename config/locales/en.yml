@@ -30,4 +30,21 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  products:
+    upload:
+      text: "Upload Products"
+      select_file: "Select a CSV file to upload"
+      file_error: "Please select a CSV file!"
+      success: "CSV file successfully processed"
+      hint_html: You can upload/update multiple Products at once using a CSV file. Here's a <a href="/sample_csv.csv" download>sample file</a> to guide you.
+      results: Upload Results
+      total:
+        one: "Total Row: %{count}"
+        other: "Total Rows: %{count}"
+      processed:
+        one: "Processed Row: %{count}"
+        other: "Processed Rows: %{count}"
+      errors:
+        one: "Error Row: %{count}"
+        other: "Error Rows: %{count}"
+  upload: "Upload"

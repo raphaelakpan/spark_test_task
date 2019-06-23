@@ -37,6 +37,16 @@ gem 'spree_gateway', '~> 3.4'
 
 group :development, :test do
   gem 'pry'
+  gem 'rspec-rails', '~> 3.8'
+  gem 'factory_bot_rails'
+  gem 'faker'
+end
+
+group :test do
+  gem 'capybara'
+  gem 'database_cleaner'
+  gem 'selenium-webdriver'
+  gem 'rails-controller-testing'
 end
 
 group :development do

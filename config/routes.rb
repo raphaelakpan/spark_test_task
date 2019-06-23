@@ -7,6 +7,11 @@ Rails.application.routes.draw do
   #
   # We ask that you don't use the :as option here, as Spree relies on it being
   # the default of "spree".
+
+  Spree::Core::Engine.routes.draw do
+    get "/admin/products/upload", to: "admin/products#upload"
+    post "/admin/products/process_upload", to: "admin/products#process_upload"
+  end
+
   mount Spree::Core::Engine, at: '/'
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

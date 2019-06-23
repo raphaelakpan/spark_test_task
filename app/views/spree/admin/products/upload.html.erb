@@ -1,0 +1,23 @@
+<% content_for :page_title do %>
+  <%= t("products.upload.text") %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <%= button_link_to Spree.t(:new_product), new_object_url, { class: "btn-success", icon: 'add', id: 'admin_new_product' } %>
+<% end if can?(:create, Spree::Product) %>
+
+<div class="panel panel-default">
+  <div class="panel-body"> <%= t("products.upload.hint_html") %> </div>
+</div>
+
+<h2> <%= t("products.upload.select_file") %> </h2>
+
+<br>
+
+<%= form_tag({ action: :process_upload },  multipart: true) do |f| %>
+  <%= file_field_tag :file,  accept: ".csv", required: true %>
+  <br>
+
+  <%= submit_tag t("upload"), class: "btn btn-success" %>
+<% end %>
+
