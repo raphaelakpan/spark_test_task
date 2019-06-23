@@ -10,10 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190619141306) do
+ActiveRecord::Schema.define(version: 20190623123325) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "file_uploads", force: :cascade do |t|
+    t.string "file_name"
+    t.string "file_type"
+    t.string "state", default: "pending", null: false
+    t.bigint "creator_id"
+    t.text "error_data"
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["creator_id"], name: "index_file_uploads_on_creator_id"
+  end
 
   create_table "friendly_id_slugs", id: :serial, force: :cascade do |t|
     t.string "slug", null: false
