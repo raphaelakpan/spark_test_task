@@ -16,7 +16,8 @@ class UploadProducts
   end
 
   def self.valid_file_format?(file)
-    file&.content_type == "text/csv"
+    return false unless file.try(:content_type).present?
+    file.content_type == "text/csv"
   end
 
   private
@@ -77,7 +78,9 @@ class UploadProducts
   def update_stock_item_count(product, count)
     return unless count.to_i.positive?
 
-    stock_item = product.master.stock_items.first_or_initialize
+    stock_item = product.master.stock_items.first_or_initialize(
+      stock_location: default_stock_location
+    )
     stock_item.count_on_hand = count
     stock_item.save!
   end
@@ -93,6 +96,10 @@ class UploadProducts
   end
 
   def default_shipping_category
-    Spree::ShippingCategory.first
+    Spree::ShippingCategory.first_or_create!(name: "default")
+  end
+
+  def default_stock_location
+    Spree::StockLocation.first_or_create!(name: "default")
   end
 end
