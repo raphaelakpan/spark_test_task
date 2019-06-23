@@ -96,10 +96,10 @@ class UploadProducts
   end
 
   def default_shipping_category
-    Spree::ShippingCategory.first_or_create!(name: "default")
+    @_default_shipping_category ||= Spree::ShippingCategory.first_or_create!(name: "default")
   end
 
   def default_stock_location
-    Spree::StockLocation.first_or_create!(name: "default")
+    @_default_stock_location ||= Spree::StockLocation.first_or_create!(name: "default")
   end
 end
