@@ -10,6 +10,7 @@ Rails.application.routes.draw do
 
   Spree::Core::Engine.routes.draw do
     get "/admin/products/upload", to: "admin/products#upload"
+    get "/admin/products/upload_status", to: "admin/products#upload_status"
     post "/admin/products/process_upload", to: "admin/products#process_upload"
   end
 

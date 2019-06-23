@@ -32,6 +32,14 @@
 en:
   products:
     upload:
+      processing: "Upload is processing... Refresh this page for updates"
+      status_error: "No CSV file found!"
+      last_upload: "View last uploaded file"
+      state:
+        done: "Done"
+        processing: "Processing"
+        pending: "Pending"
+        error: "Error"
       text: "Upload Products"
       select_file: "Select a CSV file to upload"
       file_error: "Please select a CSV file!"
@@ -48,3 +56,5 @@ en:
         one: "Error Row: %{count}"
         other: "Error Rows: %{count}"
   upload: "Upload"
+  file: "File"
+  status: "Status"
