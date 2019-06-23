@@ -14,7 +14,7 @@
 
 <br>
 
-<%= form_tag({ action: :process_upload },  multipart: true) do |f| %>
+<%= form_tag({ action: :process_upload },  multipart: true) do %>
   <%= file_field_tag :file,  accept: ".csv", required: true %>
   <br>
 

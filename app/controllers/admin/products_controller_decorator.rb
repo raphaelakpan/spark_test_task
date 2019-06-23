@@ -8,21 +8,25 @@ module Admin
     end
 
     def process_upload
-      unless UploadProducts.valid_file_format?(params[:file])
+      unless UploadProducts.valid_file_format?(file_params["file"])
         flash.now[:error] = I18n.t("products.upload.file_error")
         return render :upload
       end
 
-      @upload_products = UploadProducts.new(params[:file])
+      @upload_products = UploadProducts.new(file_params["file"])
       @upload_products.perform
 
-      flash.now[:notice] = I18n.t("products.upload.success")
+      flash.now[:success] = I18n.t("products.upload.success")
     end
 
     private
 
     def authorize_admin
       authorize! :create, Spree::Product
+    end
+
+    def file_params
+      params.permit(:file)
     end
   end
 end
