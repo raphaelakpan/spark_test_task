@@ -7,7 +7,7 @@ class UploadProducts
     @processed = 0
     @total = 0
     @errors = []
-    @file_upload = FileUpload.find_by(id: file_upload_id)
+    @file_upload = FileUpload.find(file_upload_id)
   end
 
   def perform
