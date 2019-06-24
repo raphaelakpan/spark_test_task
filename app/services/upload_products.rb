@@ -2,8 +2,6 @@
 class UploadProducts
   require 'csv'
 
-  attr_reader :errors, :total, :processed
-
   def initialize(file_path, file_upload_id)
     @file_path = file_path
     @processed = 0
@@ -13,11 +11,11 @@ class UploadProducts
   end
 
   def perform
-    update_upload_to_processing
+    @file_upload.processing
     process_file
-    update_upload_to_done
+    update_file_upload
   rescue
-    update_upload_to_error
+    @file_upload.error
   end
 
   def self.valid_file_format?(file)
@@ -27,15 +25,7 @@ class UploadProducts
 
   private
 
-  def update_upload_to_processing
-    @file_upload.update(state: FileUpload::STATES[:processing])
-  end
-
-  def update_upload_to_error
-    @file_upload.update(state: FileUpload::STATES[:error])
-  end
-
-  def update_upload_to_done
+  def update_file_upload
     @file_upload.update(
       error_data: @errors,
       metadata: {

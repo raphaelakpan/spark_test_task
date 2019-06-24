@@ -14,15 +14,19 @@ module Admin
         return render :upload
       end
 
-      file_upload = FileUpload.create_upload(file, spree_current_user)
-      UploadProductsJob.perform_async(file.path, file_upload.id)
+      file_upload = FileUpload.create_upload(file, spree_current_user.id)
+
+      # file could be ActionDispatch::Http::UploadedFile or String
+      file_path = file.is_a?(String) ? file : file.path
+      UploadProductsJob.perform_async(file_path, file_upload.id)
 
       flash[:notice] = I18n.t("products.upload.processing")
-      redirect_to admin_products_upload_status_path(id: file_upload.id)
+      redirect_to admin_products_upload_status_path(upload_id: file_upload.id)
     end
 
     def upload_status
-      @file_upload = FileUpload.file_upload_for(params[:id], spree_current_user)
+      @file_upload = FileUpload.file_upload_for(params[:upload_id], spree_current_user.id)
+
       if @file_upload.nil?
         flash[:notice] = I18n.t("products.upload.status_error")
         redirect_to admin_products_upload_path
