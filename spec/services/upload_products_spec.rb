@@ -3,6 +3,11 @@ require "spec_helper"
 describe UploadProducts do
   # file has 3 rows - 2 valid rows and 1 invalid row
   let(:file) { fixture_file_upload('files/valid-products-csv.csv', 'text/csv') }
+  let(:file_path) { file.path }
+  let(:creator) { create(:user, :admin) }
+  let(:file_upload) do
+    create(:file_upload, file_name: file.original_filename)
+  end
 
   describe "::valid_file_format?" do
     context "when file format is CSV" do
@@ -34,22 +39,38 @@ describe UploadProducts do
 
      it "uploads the CSV" do
       expect {
-        described_class.new(file).perform
+        described_class.new(file_path, file_upload.id).perform
       }.to change(Spree::Product, :count).by(2)
     end
 
-    it "tracks total, proccessed and errors rows" do
-      upload_products = described_class.new(file)
+    it "updates file_upload to 'done' state" do
+      expect(file_upload.state).to eq FileUpload::STATES[:pending]
+
+      described_class.new(file_path, file_upload.id).perform
+
+      expect(file_upload.reload.state).to eq FileUpload::STATES[:done]
+    end
+
+    it "updates file_upload with total, proccessed and errors rows" do
+      upload_products = described_class.new(file_path, file_upload.id)
       upload_products.perform
 
-      expect(upload_products.total).to eq 3
-      expect(upload_products.processed).to eq 2
-      expect(upload_products.errors.size).to eq 1
+      file_upload.reload
+      expect(file_upload.metadata["total"]).to eq 3
+      expect(file_upload.metadata["processed"]).to eq 2
+      expect(file_upload.error_data.size).to eq 1
       expect(
-        upload_products.errors.first =~ /Row 3: Must supply price for variant or master/
+        file_upload.error_data.first =~ /Row 3: Must supply price for variant or master/
       ).to be_truthy
     end
 
+    context "when error occurs during processing" do
+      it "updates file_upload to 'error' state" do
+        described_class.new("not_a_file_path", file_upload.id).perform
+
+        expect(file_upload.reload.state).to eq FileUpload::STATES[:error]
+      end
+    end
 
     describe "slug" do
       # record in CSV file with for slug "ruby-on-rails-bag";
@@ -68,7 +89,7 @@ describe UploadProducts do
         let!(:existing_product) { create(:product, slug: slug, name: "Existing Product") }
 
         it "updates the product with the values in the CSV" do
-          described_class.new(file).perform
+          described_class.new(file_path, file_upload.id).perform
 
           existing_product.reload
           expect(existing_product.slug).to eq slug
@@ -83,7 +104,7 @@ describe UploadProducts do
         it "creates a new product with the values in the CSV" do
           expect(Spree::Product.find_by(slug: slug).class).to eq NilClass
 
-          described_class.new(file).perform
+          described_class.new(file_path, file_upload.id).perform
 
           new_product = Spree::Product.find_by(slug: slug)
           expect(new_product.slug).to eq slug
@@ -106,7 +127,7 @@ describe UploadProducts do
         it "updates the stock_item's count_on_hand to the value of 'stock_total'" do
           expect(stock_item.count_on_hand).to eq 10
 
-          described_class.new(file).perform
+          described_class.new(file_path, file_upload.id).perform
 
           expect(stock_item.reload.count_on_hand).to eq stock_total
         end
@@ -116,7 +137,7 @@ describe UploadProducts do
         it "adds a stock_item record with count_on_hand set to the value of 'stock_total'" do
           expect(Spree::Product.find_by(slug: slug)).to be nil
 
-          described_class.new(file).perform
+          described_class.new(file_path, file_upload.id).perform
 
           stock_item = Spree::Product.find_by(slug: slug).stock_items.first
           expect(stock_item).not_to be nil
@@ -136,7 +157,7 @@ describe UploadProducts do
         it "does not add a new taxon record for the product" do
           expect(existing_product.taxons).to eq [taxon]
 
-          described_class.new(file).perform
+          described_class.new(file_path, file_upload.id).perform
 
           existing_product.reload
           expect(existing_product.taxons).to eq [taxon]
@@ -149,7 +170,7 @@ describe UploadProducts do
         it "adds a new taxon record for the product" do
           expect(existing_product.taxons).to eq []
 
-          described_class.new(file).perform
+          described_class.new(file_path, file_upload.id).perform
 
           taxon = Spree::Taxon.find_by(name: category)
 

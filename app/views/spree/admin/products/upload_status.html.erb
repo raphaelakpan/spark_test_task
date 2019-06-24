@@ -1,0 +1,50 @@
+<% content_for :page_title do %>
+  <%= t("products.upload.text") %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <%= button_link_to Spree.t(:new_product), new_object_url, { class: "btn-success", icon: 'add', id: 'admin_new_product' } %>
+  <%= button_link_to t("products.upload.text"), admin_products_upload_path, { class: "btn-success", icon: 'add' } %>
+<% end if can?(:create, Spree::Product) %>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><%= t("products.upload.results") %></div>
+  <ul class="list-group">
+    <li class="list-group-item">
+      <%= t("file") %>: "<%= @file_upload.file_name %>"
+      <br>
+      <small class="text-muted"><%= @file_upload.created_at.strftime("%A, %d %b %Y %l:%M %p") %></small>
+    </li>
+    <li class="list-group-item">
+      <%= t("status") %>:
+      <% if @file_upload.pending?%>
+        <span class="label label-default"><%= t("products.upload.state.pending") %></span>
+      <% elsif @file_upload.processing? %>
+        <span class="label label-primary"><%= t("products.upload.state.processing") %></span>
+      <% elsif @file_upload.done? %>
+        <span class="label label-primary"><%= t("products.upload.state.done") %></span>
+      <% elsif @file_upload.error? %>
+        <span class="label label-danger"><%= t("products.upload.state.error") %></span>
+      <% end %>
+    </li>
+    <% if @file_upload.done? %>
+      <li class="list-group-item text-primary">
+        <%= t("products.upload.total", count:  @file_upload.metadata["total"]) %>
+      </li>
+      <li class="list-group-item text-success">
+        <%= t("products.upload.processed", count:  @file_upload.metadata["processed"]) %>
+      </li>
+      <% if @file_upload.error_data.present? %>
+        <li class="list-group-item text-danger">
+          <%= t("products.upload.errors", count:  @file_upload.error_data.size) %>
+          <ul>
+            <% @file_upload.error_data.each do |error| %>
+              <li> <%= error %> </li>
+            <% end %>
+          </ul>
+        </li>
+      <% end %>
+    <% end %>
+  </ul>
+</div>
+

@@ -2,17 +2,20 @@
 class UploadProducts
   require 'csv'
 
-  attr_reader :errors, :total, :processed
-
-  def initialize(file)
-    @file = file
+  def initialize(file_path, file_upload_id)
+    @file_path = file_path
     @processed = 0
     @total = 0
     @errors = []
+    @file_upload = FileUpload.find(file_upload_id)
   end
 
   def perform
+    @file_upload.processing
     process_file
+    update_file_upload
+  rescue
+    @file_upload.error
   end
 
   def self.valid_file_format?(file)
@@ -22,8 +25,19 @@ class UploadProducts
 
   private
 
+  def update_file_upload
+    @file_upload.update(
+      error_data: @errors,
+      metadata: {
+        processed: @processed,
+        total: @total
+      },
+      state: FileUpload::STATES[:done]
+    )
+  end
+
   def process_file
-    CSV.foreach(@file.path, headers: true, col_sep: ";") do |row|
+    CSV.foreach(@file_path, headers: true, col_sep: ";") do |row|
       process_row(row.to_h)
     end
   end

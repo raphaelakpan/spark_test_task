@@ -14,10 +14,13 @@
 
 <br>
 
-<%= form_tag({ action: :process_upload },  multipart: true) do |f| %>
+<%= form_tag({ action: :process_upload },  multipart: true) do %>
   <%= file_field_tag :file,  accept: ".csv", required: true %>
   <br>
 
   <%= submit_tag t("upload"), class: "btn btn-success" %>
 <% end %>
 
+<br>
+
+<%= link_to t("products.upload.last_upload"), admin_products_upload_status_path %>
